@@ -83,27 +83,30 @@ def build_html(data):
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
-    <title>Extension registration wall of {s_text}</title>
-    <style>
-    h1.center {{
-        text-align: center;
-    }}
-    tr.yes {{
-        background-color: lightgreen
-    }}
-    tr.no {{
-        background-color: pink
-    }}
-
-    tr.ptr {{
-        background-color: palegoldenrod
-    }}
-    </style>
+<meta charset="utf-8">
+<title>Extension registration wall of {s_text}</title>
+<style>
+h1 {{
+    text-align: center;
+}}
+#percentage {{
+    text-align: center;
+    font-size: larger;
+}}
+.yes {{
+    background-color: lightgreen;
+}}
+.no {{
+    background-color: pink;
+}}
+.ptr {{
+    background-color: lemonchiffon;
+}}
+</style>
 </head>
 <body>
-<h1 class="center">Extension registration wall of {s_text}{excite}</h1>
-<center><big>{converted}/{total} - {percent}</big></center>
+<h1>Extension registration wall of {s_text}{excite}</h1>
+<p id="percentage">{converted}/{total} - {percent}</p>
 
 <p>
 In MediaWiki 1.25, a new system of loading extensions was introduced, called extension registration. Documentation
@@ -113,8 +116,8 @@ This tracks the conversion of extensions to the new system. Once over 50% of ext
 will automatically change to "wall of superpowers!".
 <br />
 <small>This page should update hourly. Inspired by the <a href="http://python3wos.appspot.com/">Python 3 Wall of Superpowers</a>.</small>
-<br />
 </p>
+
 <table>
     <tr>
         <th>Extension/Skin</th>
