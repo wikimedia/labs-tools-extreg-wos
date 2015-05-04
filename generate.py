@@ -130,7 +130,7 @@ will automatically change to "wall of superpowers!".
         converted_text = 'No'
         if data[name]['converted']:
             converted_class = 'yes'
-            converted_text = 'Yes'
+            converted_text = data[name].get('msg', 'Yes')
         elif data[name].get('review'):
             converted_class = 'ptr'
             converted_text = 'Patch to review'
@@ -176,6 +176,12 @@ def main():
                 'type': thing,
                 'converted': os.path.isfile(os.path.join(path, '%s.json' % thing[:-1]))
             }
+            php_entrypoint = os.path.join(path, '%s.php' % name)
+            if os.path.isfile(php_entrypoint):
+                with open(php_entrypoint) as f_php:
+                    data[name]['msg'] = 'Yes' \
+                        if 'wfLoad%s' % thing[:-1].title() in f_php.read() \
+                        else 'Yes (duplicated)'
             if name in bugs:
                 bug_info = bugs.pop(name)
                 data[name]['bug'] = bug_info['task_id']
