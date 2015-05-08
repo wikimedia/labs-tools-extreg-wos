@@ -1,0 +1,16 @@
+h1 {
+    text-align: center;
+}
+#percentage {
+    text-align: center;
+    font-size: larger;
+}
+.yes {
+    background-color: lightgreen;
+}
+.no {
+    background-color: pink;
+}
+.ptr {
+    background-color: lemonchiffon;
+}

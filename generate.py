@@ -85,24 +85,7 @@ def build_html(data):
 <head>
 <meta charset="utf-8">
 <title>Extension registration wall of {s_text}</title>
-<style>
-h1 {{
-    text-align: center;
-}}
-#percentage {{
-    text-align: center;
-    font-size: larger;
-}}
-.yes {{
-    background-color: lightgreen;
-}}
-.no {{
-    background-color: pink;
-}}
-.ptr {{
-    background-color: lemonchiffon;
-}}
-</style>
+<link rel="stylesheet" type="text/css" href="wos.css">
 </head>
 <body>
 <h1>Extension registration wall of {s_text}{excite}</h1>
