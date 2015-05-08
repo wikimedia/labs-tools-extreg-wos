@@ -77,6 +77,7 @@ def build_html(data):
     percent = percent[:2] + '.' + percent[2:] + '%'
     superpowers = int(percent[:2]) >= 50
     s_text = 'superpowers' if superpowers else 'sadness'
+    title = 'Extension registration wall of {s_text}'.format(s_text=s_text)
     excite = '!' if superpowers else ' :('
     print(percent)
     text = """
@@ -85,10 +86,11 @@ def build_html(data):
 <head>
 <meta charset="utf-8">
 <title>Extension registration wall of {s_text}</title>
+<title>{title}</title>
 <link rel="stylesheet" type="text/css" href="wos.css">
 </head>
 <body>
-<h1>Extension registration wall of {s_text}{excite}</h1>
+<h1>{title}{excite}</h1>
 <p id="percentage">{converted}/{total} - {percent}</p>
 
 <p>
@@ -107,7 +109,7 @@ will automatically change to "wall of superpowers!".
         <th>Converted?</th>
         <th>Bug</th>
     </tr>
-""".format(converted=converted, total=total, percent=percent, s_text=s_text, excite=excite)
+""".format(converted=converted, total=total, percent=percent, title=title, excite=excite)
     for name in sorted(data):
         converted_class = 'no'
         converted_text = 'No'
@@ -130,6 +132,19 @@ will automatically change to "wall of superpowers!".
 """
     with open(OUTPUT_DIR + 'index.html', 'w') as f:
         f.write(text)
+    toolinfo = """
+{{
+    "name" : "extreg-wos",
+    "title" : "{title}",
+    "description" : "Table showing the progress of extension registration through MediaWiki extensions.",
+    "url" : "https://tools.wmflabs.org/extreg-wos/",
+    "keywords" : "MediaWiki",
+    "author" : "Legoktm",
+    "repository" : "https://github.com/wikimedia/labs-tools-extreg-wos"
+}}
+""".format(title=title)
+    with open(OUTPUT_DIR + 'toolinfo.json', 'w') as f:
+        f.write(toolinfo)
 
 
 def git_update(thing):
