@@ -87,7 +87,6 @@ def build_html(data):
 <html>
 <head>
 <meta charset="utf-8">
-<title>Extension registration wall of {s_text}</title>
 <title>{title}</title>
 <link rel="stylesheet" type="text/css" href="wos.css">
 </head>
@@ -111,7 +110,7 @@ will automatically change to "wall of superpowers!".
         <th>Converted?</th>
         <th>Bug</th>
     </tr>
-""".format(converted=converted, total=total, percent=percent, title=title, excite=excite, s_text=s_text)
+""".format(converted=converted, total=total, percent=percent, title=title, excite=excite)
     for name in sorted(data):
         converted_class = 'no'
         converted_text = 'No'
