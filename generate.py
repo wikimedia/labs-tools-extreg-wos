@@ -58,8 +58,11 @@ def get_bugs():
                 'task_id': int(phid_info['name'][1:])
             })
             patch_to_review = PATCH_TO_REVIEW in maniphest_info['projectPHIDs']
-        ext_name = phid_info['fullName'].split('Convert ', 1)[1].split('to use', 1)[0].strip()
-        ext_name = ext_name.split('extension', 1)[0].strip()
+        try:
+            ext_name = phid_info['fullName'].split('Convert ', 1)[1].split('to use', 1)[0].strip()
+            ext_name = ext_name.split('extension', 1)[0].strip()
+        except IndexError:
+            continue
         data[ext_name] = {
             'task_id': phid_info['name'],
             'review': patch_to_review,
@@ -109,7 +112,7 @@ will automatically change to "wall of superpowers!".
         <th>Converted?</th>
         <th>Bug</th>
     </tr>
-""".format(converted=converted, total=total, percent=percent, title=title, excite=excite)
+""".format(converted=converted, total=total, percent=percent, title=title, excite=excite, s_text=s_text)
     for name in sorted(data):
         converted_class = 'no'
         converted_text = 'No'
@@ -132,8 +135,7 @@ will automatically change to "wall of superpowers!".
 """
     with open(OUTPUT_DIR + 'index.html', 'w') as f:
         f.write(text)
-    toolinfo = """
-{{
+    toolinfo = """{{
     "name" : "extreg-wos",
     "title" : "{title}",
     "description" : "Table showing the progress of extension registration through MediaWiki extensions.",
