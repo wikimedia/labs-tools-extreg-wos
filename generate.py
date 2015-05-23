@@ -76,9 +76,8 @@ def build_html(data):
     total = len(data)
     converted = sum(1 for info in data.values() if info['converted'])
     print(converted/total)
-    percent = str(converted/total)[2:5]
-    percent = percent[:2] + '.' + percent[2:] + '%'
-    superpowers = int(percent[:2]) >= 50
+    percent = '{:.2f}'.format(converted/total*100) + '%'
+    superpowers = converted/total >= 0.5
     s_text = 'superpowers' if superpowers else 'sadness'
     title = 'Extension registration wall of {s_text}'.format(s_text=s_text)
     excite = '!' if superpowers else ' :('
