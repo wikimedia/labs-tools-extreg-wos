@@ -181,9 +181,14 @@ def main():
             php_entrypoint = os.path.join(path, '%s.php' % name)
             if converted and os.path.isfile(php_entrypoint):
                 with open(php_entrypoint) as f_php:
-                    data[name]['msg'] = 'Yes' \
-                        if 'wfLoad%s' % thing[:-1].title() in f_php.read() \
-                        else 'Yes (duplicated)'
+                    try:
+                        if 'wfLoad%s' % thing[:-1].title() in f_php.read():
+                            data[name]['msg'] = 'Yes'
+                        else:
+                            data[name]['msg'] = 'Yes (duplicated)'
+                    except UnicodeDecodeError:
+                        # ???
+                        data[name]['msg'] = 'Yes'
             if name in bugs:
                 bug_info = bugs.pop(name)
                 data[name]['bug'] = bug_info['task_id']
