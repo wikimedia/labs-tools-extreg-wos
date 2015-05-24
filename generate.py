@@ -172,13 +172,14 @@ def main():
             name = path.rsplit('/', 1)[1]
             if name in archived:
                 continue
+            converted = os.path.isfile(os.path.join(path, '%s.json' % thing[:-1]))
             data[name] = {
                 'path': path,
                 'type': thing,
-                'converted': os.path.isfile(os.path.join(path, '%s.json' % thing[:-1]))
+                'converted': converted
             }
             php_entrypoint = os.path.join(path, '%s.php' % name)
-            if os.path.isfile(php_entrypoint):
+            if converted and os.path.isfile(php_entrypoint):
                 with open(php_entrypoint) as f_php:
                     data[name]['msg'] = 'Yes' \
                         if 'wfLoad%s' % thing[:-1].title() in f_php.read() \
