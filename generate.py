@@ -135,6 +135,8 @@ will automatically change to "wall of superpowers!".
 """
     with open(OUTPUT_DIR + 'index.html', 'w') as f:
         f.write(text)
+    with open(OUTPUT_DIR + 'data.json', 'w') as f:
+        f.write(text)
     toolinfo = """{{
     "name" : "extreg-wos",
     "title" : "{title}",
