@@ -149,9 +149,11 @@ will automatically change to "wall of superpowers!".
 
     text += """
 </table>
-<p>Generated: {generated}</p>
+<p>Report generated at {generated}</p>
+<br />
+Now available in <a href="data.json">JSON</a>!
 </body></html>
-""".format(generated=datetime.datetime.now())
+""".format(generated=datetime.datetime.utcnow())
 
     with open(OUTPUT_DIR + 'index.html', 'w') as f:
         f.write(text)
