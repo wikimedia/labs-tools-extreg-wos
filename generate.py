@@ -113,6 +113,7 @@ will automatically change to "wall of superpowers!".
         <th>Extension/Skin</th>
         <th>Converted?</th>
         <th>Bug</th>
+        <th title="manifest_version">Version</th>
     </tr>
 """.format(converted=converted, total=total, percent=percent, title=title, excite=excite)
 
@@ -130,13 +131,21 @@ will automatically change to "wall of superpowers!".
         if data[name].get('easy'):
             easy_text = ' (easy!)'
 
+        if data['manifest_version']:
+            mv = '<td>{}</td>'.format(data['manifest_version'])
+        elif data[name]['converted']:
+            mv = '<td class="mv-missing">Missing</td>'
+        else:
+            # Not yet converted
+            mv = '<td></td>'
         text += """
     <tr class={classname}>
         <td>{name}</td>
         <td>{converted}</td>
         <td><a href="https://phabricator.wikimedia.org/{bug}">{bug}</a>{easy}</td>
+        {mv}
     </tr>
-""".format(name=name, converted=converted_text, classname=converted_class, bug=data[name].get('bug', ''), easy=easy_text)
+""".format(name=name, converted=converted_text, classname=converted_class, bug=data[name].get('bug', ''), easy=easy_text, mv=mv)
 
     text += """
 </table>
@@ -184,12 +193,21 @@ def main():
             name = path.rsplit('/', 1)[1]
             if name in archived:
                 continue
-            converted = os.path.isfile(os.path.join(path, '%s.json' % thing[:-1]))
+            json_fname = os.path.join(path, '%s.json' % thing[:-1])
+            converted = os.path.isfile(json_fname)
             data[name] = {
                 'path': path,
                 'type': thing,
-                'converted': converted
+                'converted': converted,
+                'manifest_version': False
             }
+            if converted:
+                try:
+                    with open(json_fname) as f:
+                        json_data = json.load(f)
+                        data[name]['manifest_version'] = json_data.get('manifest_version', False)
+                except ValueError:
+                    pass
             php_entrypoint = os.path.join(path, '%s.php' % name)
             if converted and os.path.isfile(php_entrypoint):
                 with open(php_entrypoint) as f_php:

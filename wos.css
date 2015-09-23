@@ -14,3 +14,7 @@ h1 {
 .ptr {
     background-color: lemonchiffon;
 }
+
+.mv-missing {
+    background-color: red;
+}
