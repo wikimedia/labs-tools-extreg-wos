@@ -20,7 +20,7 @@ MW_DIR = '/data/project/extreg-wos/src' if ON_LABS else '/home/km/projects/vagra
 WMF_TRACKING = 87875
 OUTPUT_DIR = '/data/project/extreg-wos/public_html/' if ON_LABS else ''
 PATCH_TO_REVIEW = 'PHID-PROJ-onnxucoedheq3jevknyr'
-
+EASY = 'PHID-PROJ-2iftynis5nwxv3rpizpe'
 
 def get_all_things(thing):
     ext_dir = os.path.join(MW_DIR, thing)
@@ -54,11 +54,13 @@ def get_bugs():
     for phid in blocker_info['dependsOnTaskPHIDs']:
         phid_info = phab.request('phid.query', {'phids': [phid]})[phid]
         patch_to_review = False
+        easy = False
         if phid_info['status'] != 'closed':
             maniphest_info = phab.request('maniphest.info', {
                 'task_id': int(phid_info['name'][1:])
             })
             patch_to_review = PATCH_TO_REVIEW in maniphest_info['projectPHIDs']
+            easy = EASY in maniphest_info['projectPHIDs']
         try:
             ext_name = phid_info['fullName'].split('Convert ', 1)[1].split('to use', 1)[0].strip()
             ext_name = ext_name.split('extension', 1)[0].strip()
@@ -67,6 +69,7 @@ def get_bugs():
         data[ext_name] = {
             'task_id': phid_info['name'],
             'review': patch_to_review,
+            'easy': easy,
         }
 
     cache.set('extreg-sos1', json.dumps(data), 60*60)
@@ -112,28 +115,35 @@ will automatically change to "wall of superpowers!".
         <th>Bug</th>
     </tr>
 """.format(converted=converted, total=total, percent=percent, title=title, excite=excite)
+
     for name in sorted(data):
         converted_class = 'no'
         converted_text = 'No'
+        easy_text = ''
         if data[name]['converted']:
             converted_class = 'yes'
             converted_text = data[name].get('msg', 'Yes')
         elif data[name].get('review'):
             converted_class = 'ptr'
             converted_text = 'Patch to review'
+
+        if data[name].get('easy')
+            easy_text = ' (easy!)'
+
         text += """
     <tr class={classname}>
         <td>{name}</td>
         <td>{converted}</td>
-        <td><a href="https://phabricator.wikimedia.org/{bug}">{bug}</a></td>
+        <td><a href="https://phabricator.wikimedia.org/{bug}">{bug}</a>{easy}</td>
     </tr>
-""".format(name=name, converted=converted_text, classname=converted_class, bug=data[name].get('bug', ''))
+""".format(name=name, converted=converted_text, classname=converted_class, bug=data[name].get('bug', ''), easy=easy_text)
 
     text += """
 </table>
 <p>Generated: {generated}</p>
 </body></html>
 """.format(generated=datetime.datetime.now())
+
     with open(OUTPUT_DIR + 'index.html', 'w') as f:
         f.write(text)
     with open(OUTPUT_DIR + 'data.json', 'w') as f:
@@ -195,6 +205,7 @@ def main():
                 bug_info = bugs.pop(name)
                 data[name]['bug'] = bug_info['task_id']
                 data[name]['review'] = bug_info['review']
+                data[name]['easy'] = bug_info['easy']
 
     for name, info in data.items():
         if info['converted']:
