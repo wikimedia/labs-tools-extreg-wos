@@ -46,7 +46,7 @@ def get_archived():
 
 
 def get_bugs():
-    found = cache.get('extreg-sos1')
+    found = cache.get('extreg-sos2')
     if found:
         return json.loads(found.decode())
     data = {}
