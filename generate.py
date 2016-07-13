@@ -127,7 +127,7 @@ will automatically change to "wall of superpowers!".
             converted_class = 'ptr'
             converted_text = 'Patch to review'
 
-        if data[name].get('easy')
+        if data[name].get('easy'):
             easy_text = ' (easy!)'
 
         text += """
