@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import json
 import os
 import phabricator
@@ -129,8 +130,10 @@ will automatically change to "wall of superpowers!".
 """.format(name=name, converted=converted_text, classname=converted_class, bug=data[name].get('bug', ''))
 
     text += """
-</table></body></html>
-"""
+</table>
+<p>Generated: {generated}</p>
+</body></html>
+""".format(generated=datetime.datetime.now())
     with open(OUTPUT_DIR + 'index.html', 'w') as f:
         f.write(text)
     with open(OUTPUT_DIR + 'data.json', 'w') as f:
