@@ -70,6 +70,7 @@ def get_bugs():
             'task_id': phid_info['name'],
             'review': patch_to_review,
             'easy': easy,
+            'wmf_deployed': true,
         }
 
     cache.set('extreg-sos1', json.dumps(data), 60*60)
@@ -121,6 +122,7 @@ will automatically change to "wall of superpowers!".
         converted_class = 'no'
         converted_text = 'No'
         easy_text = ''
+        wmf_deployed = ''
         if data[name]['converted']:
             converted_class = 'yes'
             converted_text = data[name].get('msg', 'Yes')
@@ -138,14 +140,17 @@ will automatically change to "wall of superpowers!".
         else:
             # Not yet converted
             mv = '<td></td>'
+        if data[name].get('wmf_deployed'):
+            wmf_deployed = ' (WMF)'
+
         text += """
     <tr class={classname}>
         <td>{name}</td>
         <td>{converted}</td>
-        <td><a href="https://phabricator.wikimedia.org/{bug}">{bug}</a>{easy}</td>
+        <td><a href="https://phabricator.wikimedia.org/{bug}">{bug}</a>{easy}{wmf}</td>
         {mv}
     </tr>
-""".format(name=name, converted=converted_text, classname=converted_class, bug=data[name].get('bug', ''), easy=easy_text, mv=mv)
+""".format(name=name, converted=converted_text, classname=converted_class, bug=data[name].get('bug', ''), easy=easy_text, mv=mv, wmf=wmf_deployed)
 
     text += """
 </table>
@@ -226,6 +231,7 @@ def main():
                 data[name]['bug'] = bug_info['task_id']
                 data[name]['review'] = bug_info['review']
                 data[name]['easy'] = bug_info['easy']
+                data[name]['wmf_deployed'] = bug_info['wmf_deployed']
 
     for name, info in data.items():
         if info['converted']:
