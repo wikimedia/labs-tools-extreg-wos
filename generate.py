@@ -18,6 +18,7 @@ phab = phabricator.Phabricator(conf['PHAB_HOST'], conf['PHAB_USER'], conf['PHAB_
 
 MW_DIR = '/data/project/extreg-wos/src' if ON_LABS else '/home/km/projects/vagrant/mediawiki'
 WMF_TRACKING = 87875
+OTHER_TRACKING = 98668
 OUTPUT_DIR = '/data/project/extreg-wos/public_html/' if ON_LABS else ''
 PATCH_TO_REVIEW = 'PHID-PROJ-onnxucoedheq3jevknyr'
 EASY = 'PHID-PROJ-2iftynis5nwxv3rpizpe'
@@ -192,6 +193,7 @@ def git_update(thing):
 def main():
     data = {}
     bugs = get_bugs(WMF_TRACKING, true)
+    bugs.update(get_bugs(OTHER_TRACKING, false))
     archived = get_archived()
     for thing in ('extensions', 'skins'):
         if '--no-update' not in sys.argv:
