@@ -44,13 +44,13 @@ def get_archived():
     cache.set('extreg-archived', json.dumps(list(data)), 60*60)
     return data
 
-
-def get_bugs():
-    found = cache.get('extreg-sos2')
+def get_bugs(task_id, wmf=false):
+    cache_key = 'extreg-sos-task-' + task_id
+    found = cache.get(cache_key)
     if found:
         return json.loads(found.decode())
     data = {}
-    blocker_info = phab.request('maniphest.info', {'task_id': WMF_TRACKING})
+    blocker_info = phab.request('maniphest.info', {'task_id': task_id})
     for phid in blocker_info['dependsOnTaskPHIDs']:
         phid_info = phab.request('phid.query', {'phids': [phid]})[phid]
         patch_to_review = False
@@ -70,10 +70,10 @@ def get_bugs():
             'task_id': phid_info['name'],
             'review': patch_to_review,
             'easy': easy,
-            'wmf_deployed': true,
+            'wmf_deployed': wmf,
         }
 
-    cache.set('extreg-sos1', json.dumps(data), 60*60)
+    cache.set(cache_key, json.dumps(data), 60*60)
     return data
 
 
@@ -191,7 +191,7 @@ def git_update(thing):
 
 def main():
     data = {}
-    bugs = get_bugs()
+    bugs = get_bugs(WMF_TRACKING, true)
     archived = get_archived()
     for thing in ('extensions', 'skins'):
         if '--no-update' not in sys.argv:
