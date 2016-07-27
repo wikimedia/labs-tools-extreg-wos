@@ -192,8 +192,8 @@ def git_update(thing):
 
 def main():
     data = {}
-    bugs = get_bugs(WMF_TRACKING, true)
-    bugs.update(get_bugs(OTHER_TRACKING, false))
+    bugs = get_bugs(WMF_TRACKING, True)
+    bugs.update(get_bugs(OTHER_TRACKING, False))
     archived = get_archived()
     for thing in ('extensions', 'skins'):
         if '--no-update' not in sys.argv:
