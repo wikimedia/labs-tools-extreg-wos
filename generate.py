@@ -46,7 +46,7 @@ def get_archived():
     return data
 
 def get_bugs(task_id, wmf):
-    cache_key = 'extreg-sos-task-' + task_id
+    cache_key = 'extreg-sos-task-{}'.format(task_id)
     found = cache.get(cache_key)
     if found:
         return json.loads(found.decode())
