@@ -131,7 +131,7 @@ will automatically change to "wall of superpowers!".
         if data[name].get('easy'):
             easy_text = ' (easy!)'
 
-        if data['manifest_version']:
+        if data[name]['manifest_version']:
             mv = '<td>{}</td>'.format(data['manifest_version'])
         elif data[name]['converted']:
             mv = '<td class="mv-missing">Missing</td>'
