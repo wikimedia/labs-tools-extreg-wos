@@ -40,6 +40,7 @@ OUTPUT_DIR = '/data/project/extreg-wos/public_html/' if ON_LABS else ''
 PATCH_TO_REVIEW = 'PHID-PROJ-onnxucoedheq3jevknyr'
 EASY = 'PHID-PROJ-2iftynis5nwxv3rpizpe'
 
+
 def get_all_things(thing):
     ext_dir = os.path.join(MW_DIR, thing)
     return sorted(
@@ -54,13 +55,17 @@ def get_archived():
     if found:
         return set(json.loads(found.decode()))
     data = set()
-    r = requests.get('https://www.mediawiki.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:Archived%20extensions&cmlimit=max&format=json')
+    r = requests.get(
+        'https://www.mediawiki.org/w/api.php?action=query' +
+        '&list=categorymembers&cmtitle=Category:Archived%20extensions&cmlimit=max&format=json'
+    )
     resp = r.json()
     for info in resp['query']['categorymembers']:
         if info['ns'] == 102:
             data.add(info['title'].split(':', 1)[1])
-    cache.set('extreg-archived', json.dumps(list(data)), 60*60)
+    cache.set('extreg-archived', json.dumps(list(data)), 60 * 60)
     return data
+
 
 def get_bugs(task_id, wmf):
     cache_key = 'extreg-sos-task-{}'.format(task_id)
@@ -91,16 +96,16 @@ def get_bugs(task_id, wmf):
             'wmf_deployed': wmf,
         }
 
-    cache.set(cache_key, json.dumps(data), 60*60)
+    cache.set(cache_key, json.dumps(data), 60 * 60)
     return data
 
 
 def build_html(data):
     total = len(data)
     converted = sum(1 for info in data.values() if info['converted'])
-    print(converted/total)
-    percent = '{:.2f}'.format(converted/total*100) + '%'
-    superpowers = converted/total >= 0.5
+    print(converted / total)
+    percent = '{:.2f}'.format(converted / total * 100) + '%'
+    superpowers = converted / total >= 0.5
     s_text = 'superpowers' if superpowers else 'sadness'
     title = 'Extension registration wall of {s_text}'.format(s_text=s_text)
     excite = '!' if superpowers else ' :('
@@ -168,7 +173,9 @@ will automatically change to "wall of superpowers!".
         <td><a href="https://phabricator.wikimedia.org/{bug}">{bug}</a>{easy}{wmf}</td>
         {mv}
     </tr>
-""".format(name=name, converted=converted_text, classname=converted_class, bug=data[name].get('bug', ''), easy=easy_text, mv=mv, wmf=wmf_deployed)
+""".format(name=name, converted=converted_text,
+           classname=converted_class, bug=data[name].get('bug', ''),
+           easy=easy_text, mv=mv, wmf=wmf_deployed)
 
     text += """
 </table>
@@ -258,6 +265,7 @@ def main():
 
     build_html(data)
     print(bugs)
+
 
 if __name__ == '__main__':
     main()
