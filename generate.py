@@ -24,6 +24,9 @@ import phabricator
 import requests
 import subprocess
 import sys
+import wmflabs
+
+wmflabs.set_user_agent('extreg-wos')
 
 with open('config.json') as f:
     conf = json.load(f)
