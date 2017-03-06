@@ -21,7 +21,6 @@ import datetime
 import json
 import os
 import phabricator
-import redis
 import requests
 import subprocess
 import sys
@@ -30,7 +29,6 @@ with open('config.json') as f:
     conf = json.load(f)
 
 ON_LABS = os.environ.get('INSTANCEPROJECT') == 'tools'
-cache = redis.Redis(host='tools-redis' if ON_LABS else 'localhost')
 phab = phabricator.Phabricator(conf['PHAB_HOST'], conf['PHAB_USER'], conf['PHAB_CERT'])
 
 MW_DIR = '/data/project/extreg-wos/src' if ON_LABS else '/home/km/projects/vagrant/mediawiki'
@@ -51,9 +49,6 @@ def get_all_things(thing):
 
 
 def get_archived():
-    found = cache.get('extreg-archived')
-    if found:
-        return set(json.loads(found.decode()))
     data = set()
     r = requests.get(
         'https://www.mediawiki.org/w/api.php?action=query' +
@@ -63,15 +58,10 @@ def get_archived():
     for info in resp['query']['categorymembers']:
         if info['ns'] == 102:
             data.add(info['title'].split(':', 1)[1])
-    cache.set('extreg-archived', json.dumps(list(data)), 60 * 60)
     return data
 
 
 def get_bugs(task_id, wmf):
-    cache_key = 'extreg-sos-task-{}'.format(task_id)
-    found = cache.get(cache_key)
-    if found:
-        return json.loads(found.decode())
     data = {}
     blocker_info = phab.request('maniphest.info', {'task_id': task_id})
     for phid in blocker_info['dependsOnTaskPHIDs']:
@@ -96,7 +86,6 @@ def get_bugs(task_id, wmf):
             'wmf_deployed': wmf,
         }
 
-    cache.set(cache_key, json.dumps(data), 60 * 60)
     return data
 
 
