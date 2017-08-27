@@ -22,17 +22,16 @@ import json
 import os
 import phabricator
 import requests
-import subprocess
-import sys
-import wmflabs
+import toolforge
 
-wmflabs.set_user_agent('extreg-wos')
+toolforge.set_user_agent('extreg-wos')
 
 with open('config.json') as f:
     conf = json.load(f)
 
 ON_LABS = os.environ.get('INSTANCEPROJECT') == 'tools'
 phab = phabricator.Phabricator(conf['PHAB_HOST'], conf['PHAB_USER'], conf['PHAB_CERT'])
+s = requests.Session()
 
 MW_DIR = '/data/project/extreg-wos/src' if ON_LABS else '/home/km/projects/gerrit/mediawiki'
 WMF_TRACKING = 87875
@@ -43,17 +42,12 @@ EASY = 'PHID-PROJ-2iftynis5nwxv3rpizpe'
 
 
 def get_all_things(thing):
-    ext_dir = os.path.join(MW_DIR, thing)
-    return sorted(
-        os.path.join(ext_dir, path)
-        for path in os.listdir(ext_dir)
-        if not path.startswith('.') and os.path.isdir(os.path.join(ext_dir, path))
-    )
+    return get_repos()[thing]
 
 
 def get_archived():
     data = set()
-    r = requests.get(
+    r = s.get(
         'https://www.mediawiki.org/w/api.php?action=query' +
         '&list=categorymembers&cmtitle=Category:Archived%20extensions&cmlimit=max&format=json'
     )
@@ -64,8 +58,27 @@ def get_archived():
     return data
 
 
+def get_repos():
+    r = s.get(
+        'https://www.mediawiki.org/w/api.php?action=query&list=extdistrepos&formatversion=2&format=json'
+    )
+    j = r.json()
+    return j['query']['extdistrepos']
+
+
+def get_phab_file(gerrit_name, path):
+    url = 'https://phabricator.wikimedia.org/r/p/{};browse/master/{}?view=raw'.format(gerrit_name, path)
+    print('Fetching ' + url)
+    r = s.get(url)
+    try:
+        return r.json()
+    except:
+        return None
+
+
 def get_bugs(task_id, wmf):
     data = {}
+    return data
     blocker_info = phab.request('maniphest.info', {'task_id': task_id})
     for phid in blocker_info['dependsOnTaskPHIDs']:
         phid_info = phab.request('phid.query', {'phids': [phid]})[phid]
@@ -108,7 +121,7 @@ def build_html(data):
 <head>
 <meta charset="utf-8">
 <title>{title}</title>
-<link rel="stylesheet" type="text/css" href="wos.css">
+<link rel="stylesheet" type="text/css" href="static/wos.css">
 </head>
 <body>
 <h1>{title}{excite}</h1>
@@ -132,7 +145,6 @@ will automatically change to "wall of superpowers!".
         <th title="manifest_version">Version</th>
     </tr>
 """.format(converted=converted, total=total, percent=percent, title=title, excite=excite)
-
     for name in sorted(data):
         converted_class = 'no'
         converted_text = 'No'
@@ -177,33 +189,7 @@ Now available in <a href="data.json">JSON</a>!
 </body></html>
 """.format(generated=datetime.datetime.utcnow())
 
-    with open(OUTPUT_DIR + 'index.html', 'w') as f:
-        f.write(text)
-    with open(OUTPUT_DIR + 'data.json', 'w') as f:
-        json.dump(data, f)
-    toolinfo = """{{
-    "name" : "extreg-wos",
-    "title" : "{title}",
-    "description" : "Table showing the progress of extension registration through MediaWiki extensions.",
-    "url" : "https://tools.wmflabs.org/extreg-wos/",
-    "keywords" : "MediaWiki",
-    "author" : "Legoktm",
-    "repository" : "https://github.com/wikimedia/labs-tools-extreg-wos"
-}}
-""".format(title=title)
-    with open(OUTPUT_DIR + 'toolinfo.json', 'w') as f:
-        f.write(toolinfo)
-
-
-def git_update(thing):
-    cwd = os.getcwd()
-    os.chdir(os.path.join(MW_DIR, thing))
-    subprocess.check_call(['git', 'pull'])
-    try:
-        subprocess.check_call(['git', 'submodule', 'update'])
-    except subprocess.CalledProcessError:
-        pass
-    os.chdir(cwd)
+    return text
 
 
 def main():
@@ -212,38 +198,19 @@ def main():
     bugs.update(get_bugs(OTHER_TRACKING, False))
     archived = get_archived()
     for thing in ('extensions', 'skins'):
-        if '--no-update' not in sys.argv:
-            git_update(thing)
-        for path in get_all_things(thing):
-            name = path.rsplit('/', 1)[1]
+        for name in get_all_things(thing):
+            print('Processing %s...' % name)
             if name in archived:
                 continue
-            json_fname = os.path.join(path, '%s.json' % thing[:-1])
-            converted = os.path.isfile(json_fname)
+            json_data = get_phab_file('mediawiki/%s/%s' % (thing, name), 'extension.json')
+            converted = json_data is not None
             data[name] = {
-                'path': path,
                 'type': thing,
                 'converted': converted,
                 'manifest_version': False
             }
             if converted:
-                try:
-                    with open(json_fname) as f:
-                        json_data = json.load(f)
-                        data[name]['manifest_version'] = json_data.get('manifest_version', False)
-                except ValueError:
-                    pass
-            php_entrypoint = os.path.join(path, '%s.php' % name)
-            if converted and os.path.isfile(php_entrypoint):
-                with open(php_entrypoint) as f_php:
-                    try:
-                        if 'wfLoad%s' % thing[:-1].title() in f_php.read():
-                            data[name]['msg'] = 'Yes'
-                        else:
-                            data[name]['msg'] = 'Yes (duplicated)'
-                    except UnicodeDecodeError:
-                        # ???
-                        data[name]['msg'] = 'Yes'
+                data[name]['manifest_version'] = json_data.get('manifest_version', False)
             if name in bugs:
                 bug_info = bugs.pop(name)
                 data[name]['bug'] = bug_info['task_id']
@@ -255,7 +222,9 @@ def main():
         if info['converted']:
             print(name)
 
-    build_html(data)
+    with open(OUTPUT_DIR + 'data.json', 'w') as f:
+        json.dump(data, f)
+
     print(bugs)
 
 
