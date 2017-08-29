@@ -214,7 +214,8 @@ def main():
             print('Processing %s...' % name)
             if name in archived:
                 continue
-            json_data = get_phab_file('mediawiki/%s/%s' % (thing, name), 'extension.json')
+            ftype = thing[:-1] + '.json'
+            json_data = get_phab_file('mediawiki/%s/%s' % (thing, name), ftype)
             converted = json_data is not None
             data[name] = {
                 'type': thing,
