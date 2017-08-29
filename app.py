@@ -47,7 +47,7 @@ def toolinfo():
         url='https://tools.wmflabs.org/extreg-wos/',
         keywords='MediaWiki',
         author='Legoktm',
-        repository='https://github.com/wikimedia/labs-tools-extreg-wos'
+        repository='https://phabricator.wikimedia.org/diffusion/TERO/'
     )
 
 
