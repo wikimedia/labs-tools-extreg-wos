@@ -47,14 +47,27 @@ def get_all_things(thing):
 
 def get_archived():
     data = set()
-    r = s.get(
-        'https://www.mediawiki.org/w/api.php?action=query' +
-        '&list=categorymembers&cmtitle=Category:Archived%20extensions&cmlimit=max&format=json'
-    )
-    resp = r.json()
-    for info in resp['query']['categorymembers']:
-        if info['ns'] == 102:
-            data.add(info['title'].split(':', 1)[1])
+    cont = True
+    params = {
+        'action': 'query',
+        'list': 'categorymembers',
+        'cmtitle': 'Category:Archived extensions',
+        'cmlimit': 'max',
+        'format': 'json',
+        'formatversion': 2
+    }
+    while cont:
+        print(params)
+        r = s.get('https://www.mediawiki.org/w/api.php', params=params)
+        resp = r.json()
+        for info in resp['query']['categorymembers']:
+            if info['ns'] == 102:
+                data.add(info['title'].split(':', 1)[1])
+        if 'continue' in resp:
+            params.update(resp['continue'])
+            cont = True
+        else:
+            cont = False
     return data
 
 
