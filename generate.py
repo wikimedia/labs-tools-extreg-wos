@@ -78,7 +78,6 @@ def get_phab_file(gerrit_name, path):
 
 def get_bugs(task_id, wmf):
     data = {}
-    return data
     blocker_info = phab.request('maniphest.info', {'task_id': task_id})
     for phid in blocker_info['dependsOnTaskPHIDs']:
         phid_info = phab.request('phid.query', {'phids': [phid]})[phid]
