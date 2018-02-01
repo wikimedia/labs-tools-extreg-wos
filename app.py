@@ -38,6 +38,7 @@ def get_data():
 
     return data
 
+
 @app.route('/toolinfo.json')
 def toolinfo():
     return jsonify(
@@ -54,6 +55,7 @@ def toolinfo():
 @app.route('/data.json')
 def data():
     return jsonify(**get_data())
+
 
 @app.route('/')
 def main():

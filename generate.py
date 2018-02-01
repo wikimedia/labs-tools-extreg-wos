@@ -85,7 +85,7 @@ def get_phab_file(gerrit_name, path):
     r = s.get(url)
     try:
         return r.json()
-    except:
+    except Exception:
         return None
 
 
@@ -146,7 +146,8 @@ is available on <a href="https://www.mediawiki.org/wiki/Manual:Extension_registr
 This tracks the conversion of extensions to the new system. Once over 50% of extensions are converted, the page name
 will automatically change to "wall of superpowers!".
 <br />
-<small>This page should update hourly. Inspired by the <a href="http://python3wos.appspot.com/">Python 3 Wall of Superpowers</a>.</small>
+<small>This page should update hourly.
+Inspired by the <a href="http://python3wos.appspot.com/">Python 3 Wall of Superpowers</a>.</small>
 </p>
 
 <table>
