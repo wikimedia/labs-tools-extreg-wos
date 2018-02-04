@@ -185,7 +185,7 @@ Inspired by the <a href="http://python3wos.appspot.com/">Python 3 Wall of Superp
 
         text += """
     <tr class={classname}>
-        <td>{name}</td>
+        <td><a href="https://www.mediawiki.org/wiki/Extension:{name}">{name}</a></td>
         <td>{converted}</td>
         <td><a href="https://phabricator.wikimedia.org/{bug}">{bug}</a>{easy}{wmf}</td>
         {mv}
