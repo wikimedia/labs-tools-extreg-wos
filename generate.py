@@ -205,8 +205,10 @@ Now available in <a href="data.json">JSON</a>!
 
 def main():
     data = {}
-    bugs = get_bugs(WMF_TRACKING, True)
-    bugs.update(get_bugs(OTHER_TRACKING, False))
+    # FIXME: disabled due to rate limit
+    # bugs = get_bugs(WMF_TRACKING, True)
+    # bugs.update(get_bugs(OTHER_TRACKING, False))
+    bugs = {}
     archived = get_archived()
     for thing in ('extensions', 'skins'):
         for name in get_all_things(thing):
