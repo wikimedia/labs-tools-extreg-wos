@@ -23,6 +23,7 @@ import os
 import phabricator
 import requests
 import toolforge
+import wikimediaci_utils as ci
 
 toolforge.set_user_agent('extreg-wos')
 
@@ -80,11 +81,8 @@ def get_repos():
 
 
 def get_phab_file(gerrit_name, path):
-    url = 'https://phabricator.wikimedia.org/r/p/{};browse/master/{}?view=raw'.format(gerrit_name, path)
-    print('Fetching ' + url)
-    r = s.get(url)
     try:
-        return r.json()
+        return json.loads(ci.get_gerrit_file(gerrit_name, path))
     except Exception:
         return None
 

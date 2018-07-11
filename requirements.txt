@@ -2,3 +2,4 @@ fab
 flask
 requests
 toolforge
+wikimediaci_utils
