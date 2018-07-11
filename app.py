@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 extreg-wos creates a list of extensions and their status on conversion
-Copyright (C) 2015-2017 Kunal Mehta <legoktm@member.fsf.org>
+Copyright (C) 2015-2018 Kunal Mehta <legoktm@member.fsf.org>
 Copyright (C) 2016 Reedy <reedy@wikimedia.org>
 
 This program is free software: you can redistribute it and/or modify
