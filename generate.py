@@ -42,10 +42,6 @@ PATCH_TO_REVIEW = 'PHID-PROJ-onnxucoedheq3jevknyr'
 EASY = 'PHID-PROJ-2iftynis5nwxv3rpizpe'
 
 
-def get_all_things(thing):
-    return get_repos()[thing]
-
-
 def get_archived():
     data = set()
     cont = True
@@ -70,14 +66,6 @@ def get_archived():
         else:
             cont = False
     return data
-
-
-def get_repos():
-    r = s.get(
-        'https://www.mediawiki.org/w/api.php?action=query&list=extdistrepos&formatversion=2&format=json'
-    )
-    j = r.json()
-    return j['query']['extdistrepos']
 
 
 def get_phab_file(gerrit_name, path):
@@ -210,27 +198,28 @@ def main():
     # bugs.update(get_bugs(OTHER_TRACKING, False))
     bugs = {}
     archived = get_archived()
-    for thing in ('extensions', 'skins'):
-        for name in get_all_things(thing):
-            print('Processing %s...' % name)
-            if name in archived:
-                continue
-            ftype = thing[:-1] + '.json'
-            json_data = get_phab_file('mediawiki/%s/%s' % (thing, name), ftype)
-            converted = json_data is not None
-            data[name] = {
-                'type': thing,
-                'converted': converted,
-                'manifest_version': False
-            }
-            if converted:
-                data[name]['manifest_version'] = json_data.get('manifest_version', False)
-            if name in bugs:
-                bug_info = bugs.pop(name)
-                data[name]['bug'] = bug_info['task_id']
-                data[name]['review'] = bug_info['review']
-                data[name]['easy'] = bug_info['easy']
-                data[name]['wmf_deployed'] = bug_info['wmf_deployed']
+    for repo in ci.mw_things_repos():
+        thing = 'extensions' if repo.startswith('mediawiki/extensions') else 'skins'
+        name = repo.split('/')[-1]
+        print('Processing %s...' % name)
+        if name in archived:
+            continue
+        ftype = thing[:-1] + '.json'
+        json_data = get_phab_file('mediawiki/%s/%s' % (thing, name), ftype)
+        converted = json_data is not None
+        data[name] = {
+            'type': thing,
+            'converted': converted,
+            'manifest_version': False
+        }
+        if converted:
+            data[name]['manifest_version'] = json_data.get('manifest_version', False)
+        if name in bugs:
+            bug_info = bugs.pop(name)
+            data[name]['bug'] = bug_info['task_id']
+            data[name]['review'] = bug_info['review']
+            data[name]['easy'] = bug_info['easy']
+            data[name]['wmf_deployed'] = bug_info['wmf_deployed']
 
     for name, info in data.items():
         if info['converted']:
