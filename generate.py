@@ -193,10 +193,8 @@ Now available in <a href="data.json">JSON</a>!
 
 def main():
     data = {}
-    # FIXME: disabled due to rate limit
-    # bugs = get_bugs(WMF_TRACKING, True)
-    # bugs.update(get_bugs(OTHER_TRACKING, False))
-    bugs = {}
+    bugs = get_bugs(WMF_TRACKING, True)
+    bugs.update(get_bugs(OTHER_TRACKING, False))
     archived = get_archived()
     for repo in ci.mw_things_repos():
         thing = 'extensions' if repo.startswith('mediawiki/extensions') else 'skins'
