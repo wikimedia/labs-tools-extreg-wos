@@ -1,0 +1,3 @@
+backend: kubernetes
+canonical: True
+type: python3.5
