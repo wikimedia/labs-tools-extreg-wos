@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 extreg-wos creates a list of extensions and their status on conversion
-Copyright (C) 2015-2018 Kunal Mehta <legoktm@member.fsf.org>
+Copyright (C) 2015-2018, 2020 Kunal Mehta <legoktm@member.fsf.org>
 Copyright (C) 2016 Reedy <reedy@wikimedia.org>
 
 This program is free software: you can redistribute it and/or modify
@@ -142,6 +142,7 @@ Inspired by the <a href="http://python3wos.appspot.com/">Python 3 Wall of Superp
         <th>Converted?</th>
         <th>Bug</th>
         <th title="manifest_version">Version</th>
+        <th>MW version</th>
     </tr>
 """.format(converted=converted, total=total, percent=percent, title=title, excite=excite)
     for name in sorted(data):
@@ -149,7 +150,8 @@ Inspired by the <a href="http://python3wos.appspot.com/">Python 3 Wall of Superp
         converted_text = 'No'
         easy_text = ''
         wmf_deployed = ''
-        if data[name]['converted']:
+        is_converted = data[name]['converted']
+        if is_converted:
             converted_class = 'yes'
             converted_text = data[name].get('msg', 'Yes')
         elif data[name].get('review'):
@@ -161,24 +163,35 @@ Inspired by the <a href="http://python3wos.appspot.com/">Python 3 Wall of Superp
 
         if data[name]['manifest_version']:
             mv = '<td>{}</td>'.format(data[name]['manifest_version'])
-        elif data[name]['converted']:
+        elif is_converted:
             mv = '<td class="mv-missing">Missing</td>'
         else:
             # Not yet converted
             mv = '<td></td>'
+        if 'MediaWiki' in data[name].get('requires', {}):
+            mw_req = '<td>{}</td>'.format(data[name]['requires']['MediaWiki'])
+        elif is_converted:
+            mw_req = '<td class="mv-missing">Missing</td>'
+        else:
+            # Not yet converted
+            mw_req = '<td></td>'
         if data[name].get('wmf_deployed'):
             wmf_deployed = ' (WMF)'
 
         text += """
     <tr class={classname}>
-        <td><a href="https://www.mediawiki.org/wiki/Extension:{name}">{name}</a></td>
+        <td>
+            <a href="https://www.mediawiki.org/wiki/Extension:{name}">{name}</a>
+            (<a href="https://gerrit.wikimedia.org/g/mediawiki/extension/{name}">source/a>)
+        </td>
         <td>{converted}</td>
         <td><a href="https://phabricator.wikimedia.org/{bug}">{bug}</a>{easy}{wmf}</td>
         {mv}
+        {mw_req}
     </tr>
 """.format(name=name, converted=converted_text,
            classname=converted_class, bug=data[name].get('bug', ''),
-           easy=easy_text, mv=mv, wmf=wmf_deployed)
+           easy=easy_text, mv=mv, wmf=wmf_deployed, mw_req=mw_req)
 
     text += """
 </table>
@@ -212,6 +225,7 @@ def main():
         }
         if converted:
             data[name]['manifest_version'] = json_data.get('manifest_version', False)
+            data[name]['requires'] = json_data.get('requires', {})
         if name in bugs:
             bug_info = bugs.pop(name)
             data[name]['bug'] = bug_info['task_id']
