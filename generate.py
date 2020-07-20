@@ -181,7 +181,7 @@ Inspired by the <a href="http://python3wos.appspot.com/">Python 3 Wall of Superp
     <tr class={classname}>
         <td>
             <a href="https://www.mediawiki.org/wiki/Extension:{name}">{name}</a>
-            (<a href="https://gerrit.wikimedia.org/g/mediawiki/extension/{name}">source/a>)
+            (<a href="https://gerrit.wikimedia.org/g/mediawiki/extensions/{name}">source</a>)
         </td>
         <td>{converted}</td>
         <td><a href="https://phabricator.wikimedia.org/{bug}">{bug}</a>{easy}{wmf}</td>
