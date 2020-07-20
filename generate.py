@@ -34,7 +34,6 @@ ON_LABS = os.environ.get('INSTANCEPROJECT') == 'tools'
 phab = phabricator.Phabricator(conf['PHAB_HOST'], conf['PHAB_USER'], conf['PHAB_CERT'])
 s = requests.Session()
 
-MW_DIR = '/data/project/extreg-wos/src' if ON_LABS else '/home/km/gerrit/mediawiki/core'
 WMF_TRACKING = 87875
 OTHER_TRACKING = 98668
 OUTPUT_DIR = '/data/project/extreg-wos/public_html/' if ON_LABS else ''
